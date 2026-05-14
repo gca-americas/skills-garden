@@ -1,0 +1,13 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Skill workspaces (from skill-creator iteration)
+*-workspace/
+evals/results/
