@@ -1,6 +1,6 @@
 ---
 name: eng-design-doc
-description: Transform a raw product idea, brief, or rough technical sketch into a sharp software design doc written by a senior staff engineer who has shipped real systems. Use this skill whenever the user mentions a "software design doc", "engineering design doc", "eng spec", "technical design doc", "TDD", "architecture doc", "system design", "implementation plan", or says anything like "how do we build this", "tech-spec this", "what's the architecture", "scope the engineering", "the eng side of this", "design the backend". Also triggers when the user has bullet-point thoughts about data models, APIs, infra, or trade-offs and wants them expanded. Output is a single self-contained Markdown design doc covering architecture (with a mermaid diagram), data model, API surface, key trade-offs with rejected alternatives, risks, rollout plan, and an honest scope of what's NOT being built. Push toward boring tech, smallest viable architecture, and explicit trade-offs — not resume-driven over-engineering. This skill operates independently — it reads only the raw brief, not other design docs.
+description: Transform a raw product idea, brief, or rough technical sketch into a sharp software design doc written by a senior staff engineer who has shipped real systems. Use this skill whenever the user mentions a "software design doc", "engineering design doc", "eng spec", "technical design doc", "TDD", "architecture doc", "system design", "implementation plan", or says anything like "how do we build this", "tech-spec this", "what's the architecture", "scope the engineering", "the eng side of this", "design the backend". Also triggers when the user has bullet-point thoughts about data models, APIs, infra, or trade-offs and wants them expanded. Output is a single self-contained Markdown design doc covering architecture (with a mermaid diagram), data model, API surface, key trade-offs with rejected alternatives, risks, a testing strategy (consumed by the `test-driven-dev` skill), rollout plan, and an honest scope of what's NOT being built. Push toward boring tech, smallest viable architecture, and explicit trade-offs — not resume-driven over-engineering. This skill operates independently — it reads only the raw brief, not other design docs.
 ---
 
 # Engineering Design Doc
@@ -196,7 +196,28 @@ Common risks worth examining:
 - Privacy / PII exposure
 - Failure modes nobody tests (network drops mid-request, app killed mid-generation, etc.)
 
-## 10. Rollout & monitoring
+## 10. Testing strategy
+
+What we test, what we don't, and how the test suite stays useful as the app evolves. **This section is read by the `test-driven-dev` skill to generate the actual test code** — so be specific about what behavior matters.
+
+**Unit tests (must have):**
+- [Component / function] — [the specific behavior the test pins down]
+- [Component / function] — [behavior]
+
+**Integration tests (one per happy path):**
+- [User flow name] — [start state → action → expected end state, tested at the API or function-call level — not via browser automation]
+
+**Deliberately not tested (and why):**
+- [Thing] — [why it's not worth the cost; e.g., "purely visual, caught by humans during verification"]
+- [Thing] — [why]
+
+**Stack defaults:**
+- Python → `pytest`
+- Node / React → `Vitest` (or `Jest` for non-Vite projects)
+
+Tests live in `tests/` (Python) or `__tests__/` (Node). No browser automation, no visual regression, no end-to-end frameworks like Playwright or Cypress in v1.
+
+## 11. Rollout & monitoring
 
 How do we ship this, and how do we know it's working?
 
@@ -205,7 +226,7 @@ How do we ship this, and how do we know it's working?
 - **Monitoring:** [the 3–5 signals we actually care about. Not "all metrics" — the ones that would page someone.]
 - **Rollback plan:** [how do we turn it off if it's bad]
 
-## 11. Cost & capacity
+## 12. Cost & capacity
 
 Back-of-envelope numbers. Don't punt this — even rough numbers force honest design.
 
@@ -213,21 +234,21 @@ Back-of-envelope numbers. Don't punt this — even rough numbers force honest de
 - **Monthly budget at v1 scale ([N] users):** [$ figure]
 - **What breaks at 10× scale:** [the first bottleneck and what we'd do about it — but DON'T design for it now]
 
-## 12. Open questions
+## 13. Open questions
 
 - [ ] [Question] — [who can answer]
 - [ ] [Question] — [who can answer]
 
 Aim for 2–5. Every open question gets an owner.
 
-## 13. Out of scope (will not do)
+## 14. Out of scope (will not do)
 
 The engineering scope cuts. Things we are choosing NOT to engineer in v1.
 
 - **No [thing]** — [why; what would need to change for us to do it]
 - **No [thing]** — [why]
 
-## 14. Appendix (optional)
+## 15. Appendix (optional)
 
 ONLY if needed. Things like: detailed schema migrations, specific config samples, references to RFCs. If you don't need it, delete the section entirely.
 ```
@@ -282,6 +303,17 @@ Be honest about which.
 
 Don't list "scaling" as a risk in a v1 doc designed for <10k DAU. That's not a v1 risk. Real v1 risks are usually: third-party API failures, cold-start latency, on-device storage limits, model output quality.
 
+### Testing strategy
+**This section is the test plan, not the test code.** The `test-driven-dev` skill reads this section to generate the actual tests, so be specific about what behavior matters.
+
+**Unit tests** target pure functions, data transformations, and validators — code with clear inputs and outputs. Don't write "test the entire backend" — write specific behaviors: "Test that `parse_brief()` returns the four expected fields when given a well-formed BRIEF.md."
+
+**Integration tests** are sparse. Aim for one per major user flow. Test the happy path at the API or function-call level — not via browser automation.
+
+**The "deliberately not tested" list is the contract** that keeps the test suite small and honest. Good candidates for "not tested": visual styling, animation timing, third-party SDK internals, generated AI content (test the *call*, not the *output*).
+
+If your engineering doc has no real testing strategy, the test-driven-dev skill will generate generic tests that don't match the actual behavior of the app. **The strategy is what makes tests useful.**
+
 ### Rollout & monitoring
 Specify the 3–5 metrics you'd actually look at if you were on call. Not "all the metrics". The ones that would wake someone up.
 
@@ -322,4 +354,4 @@ Senior engineers say "no, here's why" — not "sure, we'll figure it out."
 
 ## When you're done
 
-End at section 13 (or 14 if you used the appendix). Don't add "Conclusion". A good engineering design doc is **finished when out-of-scope is written**. The next step is review, then code.
+End at section 14 (or 15 if you used the appendix). Don't add "Conclusion". A good engineering design doc is **finished when out-of-scope is written**. The next step is review, then code.
