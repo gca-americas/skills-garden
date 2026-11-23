@@ -9,6 +9,7 @@ A small library of [Agent Skills](https://antigravity.google/docs/skills) used i
 | **`design-doc-skills/`** | `pm-design-doc`, `ux-design-doc`, `eng-design-doc` | Turn a raw product brief into three structured Markdown design docs — product, UX, engineering. The engineering doc includes a **Testing strategy** section that the TDD skill reads. |
 | **`eng-skills/`** | `test-driven-dev`, `gemini-api` | Engineering disciplines. `test-driven-dev` is the **required** TDD methodology — write → run → fix → re-run, max 3 iterations. `gemini-api` is a fallback for the official [`gemini-api-dev`](https://github.com/google-gemini/gemini-skills) skill. |
 | **`ux-design-skills/`** | `cloud-pup`, `y2k-dreamcore` | Two specific visual identities you can apply to a frontend. Optional — use when you want a strong style. |
+| **`codelab-skills/`** | `codelab-from-repo` | Turn a working repo or demo into a publishable Google Codelabs-format tutorial — emoji sections, 👉/👉💻 markers, a `[READ ONLY]` architecture deep-dive that explains every concept, and verify checkpoints. Two arcs: deploy-&-understand and build-from-brief. |
 
 ## Install in Antigravity (workspace-scoped)
 
